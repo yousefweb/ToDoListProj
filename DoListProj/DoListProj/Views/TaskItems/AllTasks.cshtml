@@ -1,0 +1,101 @@
+﻿@model IEnumerable<TaskItem>
+@{
+    ViewData["Title"] = "AllTasks";
+}
+
+<h1 class="text-center mb-3">All Tasks</h1>
+
+<div class="d-flex justify-content-end align-items-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h3>To-Do List</h3>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="AddTask" asp-controller="TaskItems" method="post" id="taskForm">
+                            <div class="input-group mb-3">
+                                <input type="text" id="Title" name="Title" class="form-control" placeholder="New Task..." required>
+                                <button type="submit" class="btn btn-primary">Add</button>
+                            </div>
+                            <small id="error" class="text-danger d-none">Task title is required and must be under 100 characters.</small>
+                        </form>
+
+                        <h4>Pending Tasks</h4>
+                        <div id="pendingTasks">
+                            @if (Model.Any(t => !t.IsCompleted))
+                            {
+                                foreach (var task in Model.Where(t => !t.IsCompleted))
+                                {
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div>
+                                            <input type="checkbox" onchange="toggleTask(@task.Id)" class="me-2">
+                                            <span>@task.Title</span>
+                                        </div>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteTask(@task.Id)">Delete</button>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <p class="text-muted">No pending tasks.</p>
+                            }
+                        </div>
+
+                        <h4 class="mt-4">Completed Tasks</h4>
+                        <div id="completedTasks">
+                            @if (Model.Any(t => t.IsCompleted))
+                            {
+                                foreach (var task in Model.Where(t => t.IsCompleted))
+                                {
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div>
+                                            <input type="checkbox" checked onchange="toggleTask(@task.Id)" class="me-2">
+                                            <span class="text-decoration-line-through">@task.Title</span>
+                                        </div>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteTask(@task.Id)">Delete</button>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <p class="text-muted">No completed tasks.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleTask(id) {
+        fetch(`/TaskItems/ToggleCompletion?id=${id}`, { method: 'POST' })
+            .then(() => location.reload());
+    }
+
+    function deleteTask(id) {
+        fetch(`/TaskItems/DeleteTask?id=${id}`, { method: 'POST' })
+            .then(() => location.reload());
+    }
+
+    function ValidData(event) {
+        event.preventDefault();
+
+        const titleInput = document.getElementById('Title');
+        const errorMessage = document.getElementById('error');
+
+        errorMessage.classList.add('d-none');
+
+        if (titleInput.value.length > 100) {
+            errorMessage.textContent = "Task title must be under 100 characters.";
+            errorMessage.classList.remove('d-none');
+            return;
+        }
+        document.getElementById('taskForm').submit();
+    }
+
+    document.getElementById('taskForm').addEventListener('submit', ValidData);
+</script>
