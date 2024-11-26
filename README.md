@@ -1,0 +1,2 @@
+# ToDoListProj
+ Features Add a new task Mark a task as completed Delete a task Data is persisted in a JSON file (tasks.json) Folder Structure Controllers: Contains controllers to handle HTTP requests and manage the flow between the model and the view. Models: Contains the data structure for the task items. Views: Contains Razor views (UI) that are rendered by the controller. Services: Contains the service classes responsible for handling business logic and data persistence. Data: Contains the tasks.json file used for storing tasks.
